@@ -1,0 +1,23 @@
+{
+  "name": "lab-06-wack-chat",
+  "version": "0.0.1",
+  "description": "gnoevil wack-chat",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gnoevil/lab-06-wack-chat.git"
+  },
+  "author": "geno.guerrero@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gnoevil/lab-06-wack-chat/issues"
+  },
+  "homepage": "https://github.com/gnoevil/lab-06-wack-chat#readme",
+  "devDependencies": {
+    "uuid": "^3.0.1"
+  }
+}
