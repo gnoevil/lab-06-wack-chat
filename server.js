@@ -1,39 +1,52 @@
 'use strict';
-
 const net = require('net');
-const EE = require('events');
 const server = net.createServer();
-const pm = require('./lib/parse-message');
-const Client = require('./model/client');
-const ee = new EE();
-//start a TCP server using the `net` module
-const allUsers = [];
+const parse = require('./lib/parse-message.js');
 
-server.on('connection', function(socket) {
-  let client = new Client(socket);
-  allUsers.push(client);
-  console.log('Client connected.');
-  // ee.write(`Hello ${client.id}. Welcome to Wat Chat!`);
+let sockets = [];
 
-  socket.on('data', function(data){
-    let command = data.toString().split(' ').shift().trim();
-    let message = data.toString().split(' ').slice(1).join(' ');
-    if (command.startsWith('/')) {
-      ee.emit(command, client, message);
-    }
+server.on('connection', function(socket){
+  console.log('a client connected');
+  socket.write('welcome to wack chat\n');
+  socket.username = `user_${Math.floor(Math.random() * 100)}`;
+  sockets.push(socket);
+
+  socket.on('data', function(buffer){
+    console.log(buffer.toString());
+    let message = buffer.toString();
+    if(message.startsWith('/nick'))
+      return parse.nickCommand(message, socket);
+
+    if(message.startsWith('/dm'))
+      return parse.dmCommand(message, sockets);
+
+    if(message.startsWith('/users'))
+      return parse.usersCommand(sockets, socket);
+
+    if(message.startsWith('/troll'))
+      return parse.trollCommand(message, sockets);
+
+    if(message.startsWith('/ban'))
+      return parse.banCommand(message, sockets);
+
+    if(message.startsWith('/info'))
+      return parse.infoCommand(socket);
+
+    sockets.forEach(s => {
+      if(s !== socket)
+        s.write(`${socket.username}: ${message}\n`);
+    });
   });
+
   socket.on('close', function(){
-    allUsers.forEach(client => {
-      if (client.nickname) {
-        client.socket.destroy();
-        allUsers.forEach( client => {
-          console.log(`${client.nickname}: has left Wat Chat!`);
-        });
-      }
+    console.log('a client left the chat');
+    sockets.forEach((s, index) => {
+      if(s == socket)
+        sockets.splice(index, 1);
     });
   });
 });
 
-server.listen(3000, function() {
-  console.log('server connection at localhost://3000');
+server.listen(3000, function(){
+  console.log('server up!');
 });
